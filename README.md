@@ -24,5 +24,9 @@ If all done right, you can start raidbot:
 
 - python builder.py
 
+After starting, specify the account token, amount of bots and other data.
+
+Then, after building, write 'rbot%run' on a desired server.
+
 Not available on Linux/macOS
 

@@ -24,3 +24,5 @@ If all done right, you can start raidbot:
 
 - python builder.py
 
+Not available on Linux/macOS
+

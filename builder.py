@@ -11,7 +11,7 @@ for x in range(number_of_bots):
   nbots_help+=1
   temppy=open('temppy'+str(nbots_help)+'.py', 'a+')
   temppy.write('import discord; client=discord.Client()\n')
-  token_filename=input('Name a file in rbot folder with №'+str(nbots_help)+' bot token')
+  token_filename=input('Name a file in rbot folder with №'+str(nbots_help)+' bot token\n')
   token_file=open(token_filename, 'r')
   token=token_file.read()
   token_file.close()
@@ -29,5 +29,4 @@ print('Settings done, starting bot...')
 
 for x in range(number_of_bots):
   nbots_help+=1
-  os.system('start /min temppy'+str(nbots_help)+'.py')
-  
+  os.system('start /min temppy'+str(nbots_help)+'.py')  

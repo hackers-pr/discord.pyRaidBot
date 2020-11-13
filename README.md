@@ -22,7 +22,7 @@ If all done right, you can start raidbot:
 
 - cd path-to-DSBU
 
-- python DSBT.py
+- python builder.py
 
 Not available on Linux/macOS
 

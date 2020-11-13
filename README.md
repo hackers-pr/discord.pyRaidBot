@@ -1,5 +1,5 @@
-# discord.pyRaidBot
-A program, with which you can raid discord servers with a different number of bots.
+# discordselfbotutils
+A program, with which you can do some interesting things with a different number of bots.
 
 Firstly, you need to install python 3.7 or 3.8.
 
@@ -10,7 +10,7 @@ You can do it with python pip:
 
 Then go to raidbot directory:
 
-- cd path-to-raidbot-folder
+- cd path-to-DSBU
 
 - python3 -m venv bot-env
 
@@ -20,13 +20,9 @@ Then go to raidbot directory:
 
 If all done right, you can start raidbot:
 
-- cd path-to-raidbot-folder
+- cd path-to-DSBU
 
-- python builder.py
-
-After starting, specify the account token, amount of bots and other data.
-
-Then, after building, write 'rbot%run' on a desired server.
+- python DSBT.py
 
 Not available on Linux/macOS
 

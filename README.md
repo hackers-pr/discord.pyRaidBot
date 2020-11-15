@@ -24,5 +24,6 @@ If all done right, you can start raidbot:
 
 - python builder.py
 
-Not available on Linux/macOS
+You can see info about DSBT commands here: https://github.com/hackers-pr/discordselfbotutils/wiki
 
+Not available on Linux/macOS

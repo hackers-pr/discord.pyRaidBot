@@ -1,29 +1,36 @@
 # discordselfbotutils
+
 A program, with which you can do some interesting things with a different number of bots.
 
-Firstly, you need to install python 3.7 or 3.8.
+Firstly, you need to install python 3.8 or higher.
 
 After that you need to install discord.py module.
-You can do it with python pip:
+You can easily do it with python pip:
 
-- pip install -U discord.py
+```
+* python3 -m pip install -U discord.py
+```
 
 Then go to raidbot directory:
 
-- cd path-to-DSBU
+```
+* cd path-to-DSBU
 
-- python3 -m venv bot-env
+* python3 -m venv bot-env
 
-- bot-env\Scripts\activate.bat
+* source bot-env/bin/activate
 
-- pip install -U discord.py
+* pip install -U discord.py
+```
 
 If all done right, you can start raidbot:
 
-- cd path-to-DSBU
+```
+* cd path-to-DSBU
 
-- python builder.py
+* python builder.py
+```
 
 You can see info about DSBT commands here: https://github.com/hackers-pr/discordselfbotutils/wiki
 
-Not available on Linux/macOS
+Not available on Windows.

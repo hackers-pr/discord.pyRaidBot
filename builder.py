@@ -1,37 +1,39 @@
 import os
-import os.path
-os.system('cd temp')
+import json
+import threading
+import subprocess
+from time import *
 
-def rbst(token_filename, random):
+global bot_procs
+bot_procs=[]
 
-  if random!='random'and random!='normal':
+def rbst(token_filename, random, config_filename):
+
+  if random!='random' and random!='normal':
     random='normal'
     
   global number_of_bots
+  del_help=0
 
-  os.system('del temppy*.py')
-  os.system('cls')
-
-  #config check
-  config_file=open('cnfg.log', 'r')
-
+  while True:
+    try:
+      os.remove('temppy'+str(del_help)+'.py')
+      del_help+=1
+    except FileNotFoundError:
+      break
+  
   nbots_help=-1
-  if config_file.read()=='':
+  if config_filename.lower()=='none':
     number_of_bots=int(input('With how many bots you will spam?\n'))
     message_to_send=input('Now pick a message, what bots will send.\n')
     message_channel=input('Input needed channel ID (where you will spam).\n')
   
   else:
-    config_file=open('cnfg.log', 'r')
-    cfgr=str(config_file.read())
-    config_list=list(cfgr.split(' '))
-    number_of_bots=int(config_list[0])
-    verify=config_list[1]
-    verify_message=config_list[2]
-    message_to_send=config_list[3]
-    verify_channel=config_list[4]
-    message_channel=config_list[5]
-    token_filename=config_list[6]
+    config=open(config_filename+'.json','r')
+    cfg=json.loads(config.read())
+    number_of_bots=cfg['number_of_bots']
+    message_to_send=cfg['message_to_send']
+    message_channel=cfg['message_channel']
     
   token_file=open(token_filename, 'r')
   token=token_file.read().split(' ')
@@ -40,20 +42,20 @@ def rbst(token_filename, random):
   for x in range(number_of_bots):
     nbots_help+=1
     temppy=open('temppy'+str(nbots_help)+'.py', 'a+')
-    temppy.write('import discord; import string; import random; client=discord.Client()\n')
-    temppy.write(temppy.read()+'@client.event\n')
-    temppy.write(temppy.read()+'async def on_connect():\n')
-    temppy.write(temppy.read()+'  text=""\n')
-    temppy.write(temppy.read()+'  ch=client.get_channel('+message_channel+')\n')
-    temppy.write(temppy.read()+'  while True:\n')
+    temppy.write('''import discord; import string; import random; client=discord.Client()
+@client.event
+async def on_connect():
+  text=""
+  ch=client.get_channel('''+str(message_channel)+''')
+  while True:'''+'\n')
     if random=='random':
-      temppy.write(temppy.read()+'      for x in range(1999):\n')
-      temppy.write(temppy.read()+'        text+=random.choice(string.ascii_letters)\n')
-      temppy.write(temppy.read()+'      await ch.send(text)\n')
-      temppy.write(temppy.read()+'      text=""\n')
+      temppy.write(temppy.read()+'''      for x in range(1999):
+        text+=random.choice(string.ascii_letters)
+      await ch.send(text)
+      text=""'''+'\n')
     else:
-      temppy.write(temppy.read()+'    await ch.send("'+message_to_send+'")\n')
-    temppy.write(temppy.read()+'client.run("'+token[nbots_help]+'", bot=False)\n')
+      temppy.write(temppy.read()+'await ch.send("'+str(message_to_send)+'")'+'\n')
+    temppy.write('client.run("'+token[nbots_help]+'", bot=False)')
     temppy.close()
     print('The settings of the №'+str(nbots_help+1)+' bot were written')
 
@@ -62,34 +64,62 @@ def rbst(token_filename, random):
 
   for x in range(number_of_bots):
     nbots_help+=1
-    os.system('start /min temppy'+str(nbots_help)+'.py')
+    bot_procs.append(subprocess.Popen(('python3 -u temppy'+str(nbots_help)+'.py').split()))
 
-def verify(token_filename, versystem):
+def verify(token_filename, versystem, config_filename):
+
+  if versystem!='message' and versystem!='reaction':
+    print('invalid argument')
+    return
 
   nbots_help=-1
+  del_help=0
 
-  os.system('del verpy*.py')
-  os.system('cls')
+  while True:
+    try:
+      os.remove('verpy'+str(del_help)+'.py')
+      del_help+=1
+    except FileNotFoundError:
+      break
   
-  verify_channel=input('Input verification channel ID.\n')
-  if versystem=='message':
-    verify_message=input('Now pick a message, what bots will send to verify.\n')
-  number_of_bots=int(input('How many bots you need to verify?\n'))
-    
+  if config_filename.lower()=='none': 
+    verify_channel=input('Input verification channel ID.\n')
+    if versystem=='message':
+      verify_message=input('Now pick a message, what bots will send to verify.\n')
+    elif versystem=='reaction':
+      verify_reaction_id=input('Please, input reaction ID.\n')
+      reaction_message_id=input('Now enter the message ID, where you will add the reaction.\n')
+    number_of_bots=int(input('How many bots you need to verify?\n'))
+  
+  else:
+    config=open(config_filename+'.json','r')
+    cfg=json.loads(config.read())
+    verify_channel=cfg['verify_channel']
+    if versystem=='message':
+      verify_message=cfg['verify_message']
+    elif versystem=='reaction':
+      verify_reaction_id=cfg['verify_reaction_id']
+      reaction_message_id=cfg['reaction_message_id']
+    number_of_bots=cfg['number_of_bots']
+  
   token_file=open(token_filename, 'r')
   token=token_file.read().split(' ')
   token_file.close()
   
-  for x in range(number_of_bots):
-  
+  for x in range(number_of_bots):  
     nbots_help+=1
     verpy=open('verpy'+str(nbots_help)+'.py', 'a+')   
-    verpy.write('import discord; client=discord.Client()\n')
-    verpy.write(verpy.read()+'@client.event\n')
-    verpy.write(verpy.read()+'async def on_connect():\n')
-    verpy.write(verpy.read()+'  ch=client.get_channel('+verify_channel+')\n')
-    verpy.write(verpy.read()+'  await ch.send("'+verify_message+'")\n')
-    verpy.write(verpy.read()+'  exit()\n')
+    verpy.write('''import discord; client=discord.Client()
+@client.event
+async def on_connect():
+  ch=client.get_channel('''+str(verify_channel)+')\n')
+    if versystem=='message':
+      verpy.write(verpy.read()+'  await ch.send("'+str(verify_message)+'")\n')
+    elif versystem=='reaction':
+      verpy.write(verpy.read()+'  ej=client.get_emoji('+str(verify_reaction_id)+''')
+  async for message in ch.history(limit=100):
+    if message.id=='''+str(reaction_message_id)+''':
+      await message.add_reaction(ej)'''+'\n')
     verpy.write(verpy.read()+'client.run("'+token[nbots_help]+'", bot=False)\n')
     verpy.close()
     print('The settings of the №'+str(nbots_help+1)+' bot were written')
@@ -99,70 +129,92 @@ def verify(token_filename, versystem):
     
   for x in range(number_of_bots):
     nbots_help+=1
-    os.system('start /min verpy'+str(nbots_help)+'.py')
+    bot_procs.append(subprocess.Popen(('python3 -u verpy'+str(nbots_help)+'.py').split(), 
+    stderr=subprocess.PIPE))
   
 def rbtk():
-  try:
-    number_of_bots
-  except:
-    number_of_bots=int(input('How many bots you need to kill?\n'))
-  nbots_help=-1
-  for x in range(number_of_bots):
-    nbots_help+=1
-    os.system('taskkill /f /im temppy'+str(nbots_help)+'.py')
+  for x in range(len(bot_procs)):
+    bot_procs[0].kill()
+    bot_procs.pop(0)
 
-def rbcnfg():
-  os.system('cd ..')
+def cnfg():
   
-  global number_of_bots
+  config_filename=input('Please, enter config filename to edit or create new config.\n')
+  config=open(config_filename+'.json','a')
+  
+  str_config=''
+  variable_name=''
+  variable_value=''
+  variable_type=''
+  
+  while True:
+    variable_name=input('Variable name:\n')
+    if variable_name=='q':
+      break
+    variable_value=input('Variable value:\n')
+    if variable_value=='q':
+      break
+    variable_type=input('Variable type: (int/str)\n')
+    if variable_type=='q':
+      break
+    if variable_type.lower()=='int':
+      str_config+='"'+variable_name+'": int('+variable_value+'),'
+    elif variable_type.lower()=='str':
+      str_config+='"'+variable_name+'": "'+variable_value+'",'
+    else:
+      print('error: unknown variable type')
+    
+  if str_config!='':
+    print('config.write(json.dumps({'+str_config+'},sort_keys=True,indent=4))')
+    eval('config.write(json.dumps({'+str_config+'},sort_keys=True,indent=4))')
+  
+def unchng(eoaou, sthing_to_chng, password, config_filename):
 
-  config_file=open('cnfg.log', 'w')
-  number_of_bots=int(input('With how many bots you will spam?\n'))
-  verify=input('Does the required server have a verification system? (y\n)\n')
-  verify_message=input('Now pick a message, what bots will send TO VERIFY.\n')
-  message_to_send=input('Now pick a message, what bots will send.\n')
-  verify_channel=input('Input verification channel ID.\n')
-  message_channel=input('Input needed channel ID (where you will spam).\n')
-  token_filename=input('Name a file in rbot folder with bots token\n') 
-  config_file.write(str(number_of_bots)+' '+verify+' '+verify_message+' '+message_to_send+' '+verify_channel+' '+message_channel+' '+token_filename)
-  
-  os.system('cd temp')
-  
-def unchng(eoaou, sthing_to_chng, password):
-  os.system('del usch*.py')
-  os.system('cls')
+  del_help=0
+
+  while True:
+    try:
+      os.remove('usch'+str(del_help)+'.py')
+      del_help+=1
+    except FileNotFoundError:
+      break
 
   if eoaou!='email' and eoaou!='avatar' and eoaou!='username':
     print('error: please input, what you want to change')
     return
   nbots_help=-1
-  number_of_bots=int(input('For how many bots you will change username?\n'))
-  token_filename=input('Name a file in rbot folder with tokens\n')
+
+  if config_filename.lower()=='none':
+    number_of_bots=int(input('For how many bots you will change username?\n'))
+    token_filename=input('Name a file in rbot folder with tokens\n')
+
+  else:
+    config=open(config_filename+'.json','r')
+    cfg=json.loads(config.read())
+    number_of_bots=cfg['number_of_bots']
+    token_filename=cfg['token_filename']
+
   token_file=open(token_filename, 'r')
   token=token_file.read().split(' ')
   token_file.close()
   for x in range(number_of_bots):
     nbots_help+=1
     usern_change=open('usch'+str(nbots_help)+'.py', 'a+')
-    usern_change.write('import discord; from tkinter import *; import tkinter.messagebox; client=discord.Client()\n')
-    usern_change.write('@client.event\n')
-    usern_change.write(usern_change.read()+'async def on_connect():\n')
-    usern_change.write(usern_change.read()+'  user=client.user\n')
+    usern_change.write('''import discord; client=discord.Client()
+@client.event
+async def on_connect():
+  user=client.user'''+'\n')
     if eoaou=='avatar':
-      usern_change.write(usern_change.read()+'  avatar=open("'+sthing_to_chng+'", "rb").read()\n')
-      usern_change.write(usern_change.read()+'  try:\n')
-      usern_change.write(usern_change.read()+'    await user.edit('+eoaou+'=avatar,password="'+password+'")\n')
-      usern_change.write(usern_change.read()+'    exit()\n')
-      usern_change.write(usern_change.read()+'  except HTTPException:\n')
-      usern_change.write(usern_change.read()+'    tkinter.messagebox.showinfo("Warning", "Something went wrong... Maybe you change your avatar too fast!")\n')
-      usern_change.write(usern_change.read()+'    exit()\n')
+      usern_change.write(usern_change.read()+'  avatar=open("'+sthing_to_chng+'''", "rb").read()
+  try:
+    await user.edit('''+eoaou+'=avatar,password="'+password+'''")
+  except:
+    print("\\nWarning!\\n*****\\nSomething went wrong... Maybe you change your avatar too fast!\\n")'''+'\n')
     else:
-      usern_change.write(usern_change.read()+'  try:\n')
-      usern_change.write(usern_change.read()+'    await user.edit('+eoaou+'="'+sthing_to_chng+'",password="'+password+'")\n')
-      usern_change.write(usern_change.read()+'    exit()\n')
-      usern_change.write(usern_change.read()+'  except HTTPException:\n')
-      usern_change.write(usern_change.read()+'    tkinter.messagebox.showinfo("Warning", "Something went wrong... Maybe you change your nickname/email too fast!")\n')
-      usern_change.write(usern_change.read()+'    exit()\n')
+      usern_change.write(usern_change.read()+'''  try:
+    await user.edit('''+eoaou+'="'+sthing_to_chng+'",password="'+password+'''")
+  except HTTPException:
+    print("\\nWarning!"\n*****\nSomething went wrong... Maybe you change your nickname/email too fast!\\n"')'''+'\n')
     usern_change.write(usern_change.read()+'client.run("'+token[nbots_help]+'", bot=False)\n')
     usern_change.close()
 
@@ -170,14 +222,67 @@ def unchng(eoaou, sthing_to_chng, password):
 
   for x in range(number_of_bots):
     nbots_help+=1
-    os.system('start /min usch'+str(nbots_help)+'.py')
-  
+    bot_procs.append(subprocess.Popen(('python3 -u usch'+str(nbots_help)+'.py').split()))
+ 
+def tokencheck(token_filename, config_filename):
+
+  del_help=0
+
+  while True:
+    try:
+      os.remove('tokencheck'+str(del_help)+'.py')
+      del_help+=1
+    except FileNotFoundError:
+      break
+
+  if config_filename.lower()=='none':
+    number_of_bots=int(input('How many accounts you will check?\n'))
+
+  else:
+    config=open(config_filename+'.json','r')
+    cfg=json.loads(config.read())
+    number_of_bots=cfg['number_of_bots']
+
+  token_file=open(token_filename, 'r')
+  token=token_file.read().split(' ')
+  token_file.close()
+
+  for x in range(number_of_bots):
+    tokencheck=open('tokencheck'+str(x)+'.py', 'a+')
+    tokencheck.write('''import discord; client=discord.Client()
+@client.event
+async def on_ready():
+  friends=''
+  blocked=''
+  print('INFO ABOUT '+client.user.name+'#'+str(client.user.discriminator)+':\\n\\
+email:'+str(client.user.email)+'\\n\\
+id:'+str(client.user.id)+'\\n\\
+language:'+str(client.user.locale)+'\\n\\
+mfa enabled:'+str(client.user.mfa_enabled)+'\\n\\
+have nitro:'+str(client.user.premium)+'\\n\\
+nitro type:'+str(client.user.premium_type)+'\\n\\n\\
+*******************\\n')
+  for x in client.user.friends:
+    friends+=x.name+'\\n\'
+  for x in client.user.blocked:
+    blocked+=x.name+'\\n\'
+  print('friends:\\n'+str(friends)+'\\n\\
+*******************\\n\\
+blocked:\\n'+str(blocked)+'\\n')
+client.run("'''+token[x]+'", bot=False)')
+    tokencheck.close()
+
+  for x in range(number_of_bots):
+    bot_procs.append(subprocess.Popen(('python3 -u tokencheck'+str(x)+'.py').split()))
+
 def dthelp():
   print('\nSELFBOT COMMANDS:'+
-  '\n\nrbst [file with tokens name] [random/normal]: start raidbot;'+
+  '\n\nrbst [file with tokens name] [random/normal] [config filename]: start raidbot;'+
+  '\nverify [file with tokens name] [verify system (message/reaction)] [config filename]: passing verify;'+
   '\nrbtk: taskkill raidbot;'+
-  '\nrbcnfg: set rbst config;'+
-  '\nunchng [what you need to change, email/avatar/username, password]: change something;'+
+  '\ncnfg: set config;'+
+  '\nunchng [what you need to change] [email/avatar/username] [password] [config filename]: changes something;'+
+  '\ntokencheck [file with tokens name] [config filename];'+
   '\n\nOTHER:'+
   '\n\nhelp: shows this message;'+
   '\nexit: exit.')
@@ -197,24 +302,35 @@ while 1:
   inpcl=list(inpc.split(' '))
   if inpc=='rbtk':
       rbtk()
-  elif inpc=='rbcnfg':
-      rbcnfg()
+  elif inpc=='cnfg':
+      cnfg()
   elif inpc=='help':
       dthelp()
   elif inpc=='exit':
       exit()    
   elif inpcl[0]=='rbst':
-    if len(inpcl)>2:
-      rbst(inpcl[1], inpcl[2])
+    if len(inpcl)>3:
+      rbst(inpcl[1], inpcl[2], inpcl[3])
+    elif len(inpcl)==3:
+      rbst(inpcl[1], inpcl[2], 'none')
     else:
       print('not enough args')
   elif inpcl[0]=='unchng':
-    if len(inpcl)>3:      
-      unchng(eoaou=inpcl[1], sthing_to_chng=inpcl[2], password=inpcl[3])
+    if len(inpcl)==4:      
+      unchng(eoaou=inpcl[1], sthing_to_chng=inpcl[2], password=inpcl[3], config_filename='none')
+    elif len(inpcl)>4:
+      unchng(eoaou=inpcl[1], sthing_to_chng=inpcl[2], password=inpcl[3], config_filename=inpcl[4])
     else:
       print('not enough args')
   elif inpcl[0]=='verify':
+    if len(inpcl)>3:
+      verify(inpcl[1], inpcl[2], inpcl[3])
+    elif len(inpcl)==3:
+      verify(inpcl[1], inpcl[2], 'none')
+  elif inpcl[0]=='tokencheck':
     if len(inpcl)>2:
-      verify(inpcl[1], inpcl[2])
+      tokencheck(inpcl[1], inpcl[2])
+    elif len(inpcl)==2:
+      tokencheck(inpcl[1], 'none')
   else:
     print('unknown command')

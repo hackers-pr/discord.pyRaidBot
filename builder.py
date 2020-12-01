@@ -54,7 +54,7 @@ async def on_connect():
       await ch.send(text)
       text=""'''+'\n')
     else:
-      temppy.write(temppy.read()+'await ch.send("'+str(message_to_send)+'")'+'\n')
+      temppy.write(temppy.read()+'    await ch.send("'+str(message_to_send)+'")'+'\n')
     temppy.write('client.run("'+token[nbots_help]+'", bot=False)')
     temppy.close()
     print('The settings of the №'+str(nbots_help+1)+' bot were written')
